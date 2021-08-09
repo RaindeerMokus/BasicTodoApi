@@ -169,7 +169,7 @@ paths:
               id:
                 type: "integer"
                 format: "uint64"
-              newParentId:
+              parentId:
                 type: "integer"
                 format: "uint64"
       responses:
