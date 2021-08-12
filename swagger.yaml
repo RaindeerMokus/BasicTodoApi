@@ -52,8 +52,8 @@ paths:
             type: object
             properties:
               parentId:
-                type: "integer"
-                format: "uint64"
+                type: "string"
+                format: "string"
               title:
                 type: "string"
       responses:
@@ -75,8 +75,8 @@ paths:
             type: object
             properties:
               id:
-                type: "integer"
-                format: "uint64"
+                type: "string"
+                format: "string"
               title:
                 type: "string"
       responses:
@@ -98,8 +98,8 @@ paths:
             type: object
             properties:
               id:
-                type: "integer"
-                format: "uint64"
+                type: "string"
+                format: "string"
               title:
                 type: "string"
       responses:
@@ -121,10 +121,8 @@ paths:
             type: object
             properties:
               id:
-                type: "integer"
-                format: "uint64"
-              isDone:
-                type: "boolean"
+                type: "string"
+                format: "string"
       responses:
         "200":
           description: "successful operation"
@@ -144,10 +142,8 @@ paths:
             type: object
             properties:
               id:
-                type: "integer"
-                format: "uint64"
-              isDone:
-                type: "boolean"
+                type: "string"
+                format: "string"
       responses:
         "200":
           description: "successful operation"
@@ -167,11 +163,11 @@ paths:
             type: object
             properties:
               id:
-                type: "integer"
-                format: "uint64"
+                type: "string"
+                format: "string"
               parentId:
-                type: "integer"
-                format: "uint64"
+                type: "string"
+                format: "string"
       responses:
         "200":
           description: "successful operation"
@@ -186,8 +182,8 @@ definitions:
     type: "object"
     properties:
       id:
-        type: "integer"
-        format: "uint64"
+        type: "string"
+        format: "string"
       title:
         type: "string"
         format: "string"
@@ -209,8 +205,8 @@ definitions:
     type: "object"
     properties:
       id:
-        type: "integer"
-        format: "uint64"
+        type: "string"
+        format: "string"
       title:
         type: "string"
         format: "string"

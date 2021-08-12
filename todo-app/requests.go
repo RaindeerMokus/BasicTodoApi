@@ -7,15 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var todos Todos
-var maxID uint64
-var subTodos SubTodos
-var maxsubID uint64
-
-func main() {
-	todos = make(Todos)
-	subTodos = make(SubTodos)
-
+func initRouter() {
 	router := gin.Default()
 
 	router.GET("/todos", getTodos)
@@ -27,11 +19,11 @@ func main() {
 	router.PUT("/tickSubTodo", putTickSubTodo)
 	router.PUT("/moveSubTodo", putMoveSubTodo)
 
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
 
 func getTodos(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, todos)
+	c.IndentedJSON(http.StatusOK, todos.retrieveAll())
 }
 
 func postTodo(c *gin.Context) {
@@ -40,12 +32,7 @@ func postTodo(c *gin.Context) {
 	if err := c.BindJSON(&newTodo); err != nil {
 		return
 	}
-	newTodo.Id = maxID
-	maxID++
-	newTodo.CreatedAt = time.Now()
-	newTodo.SubTodos = make(map[uint64]*SubTodo)
-
-	todos[newTodo.Id] = &newTodo
+	todos.add(&newTodo)
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
 
@@ -55,11 +42,7 @@ func postSubTodo(c *gin.Context) {
 	if err := c.BindJSON(&newSubTodo); err != nil {
 		return
 	}
-	newSubTodo.Id = maxsubID
-	maxsubID++
-
-	subTodos[newSubTodo.Id] = &newSubTodo
-	todos[newSubTodo.ParentId].SubTodos[newSubTodo.Id] = &newSubTodo
+	subTodos.add(&newSubTodo)
 	c.IndentedJSON(http.StatusCreated, newSubTodo)
 }
 
@@ -73,6 +56,8 @@ func putRenameTodo(c *gin.Context) {
 	todos[newNameTodo.Id].Title = newNameTodo.Title
 	todos[newNameTodo.Id].UpdatedAt = time.Now()
 
+	update("todo", newNameTodo.Id, todos[newNameTodo.Id])
+
 	c.IndentedJSON(http.StatusCreated, todos[newNameTodo.Id])
 }
 
@@ -84,6 +69,8 @@ func putRenameSubTodo(c *gin.Context) {
 	}
 
 	subTodos[newNameSubTodo.Id].Title = newNameSubTodo.Title
+	update("subtodo", newNameSubTodo.Id, subTodos[newNameSubTodo.Id])
+	update("todo", subTodos[newNameSubTodo.Id].ParentId, todos[subTodos[newNameSubTodo.Id].ParentId])
 
 	c.IndentedJSON(http.StatusCreated, subTodos[newNameSubTodo.Id])
 }
@@ -98,6 +85,8 @@ func putTickTodo(c *gin.Context) {
 	todos[tickTodo.Id].IsDone = !todos[tickTodo.Id].IsDone
 	todos[tickTodo.Id].UpdatedAt = time.Now()
 
+	update("todo", tickTodo.Id, todos[tickTodo.Id])
+
 	c.IndentedJSON(http.StatusCreated, todos[tickTodo.Id])
 }
 
@@ -110,6 +99,9 @@ func putTickSubTodo(c *gin.Context) {
 
 	subTodos[tickSubTodo.Id].IsDone = !subTodos[tickSubTodo.Id].IsDone
 
+	update("subtodo", tickSubTodo.Id, subTodos[tickSubTodo.Id])
+	update("todo", subTodos[tickSubTodo.Id].ParentId, todos[subTodos[tickSubTodo.Id].ParentId])
+
 	c.IndentedJSON(http.StatusCreated, subTodos[tickSubTodo.Id])
 }
 
@@ -120,10 +112,18 @@ func putMoveSubTodo(c *gin.Context) {
 		return
 	}
 
-	delete(todos[subTodos[moveSubTodo.Id].ParentId].SubTodos, moveSubTodo.Id)
+	oldParentTodo := todos[subTodos[moveSubTodo.Id].ParentId]
+	delete(oldParentTodo.SubTodos, moveSubTodo.Id)
 
 	subTodos[moveSubTodo.Id].ParentId = moveSubTodo.ParentId
 	todos[moveSubTodo.ParentId].SubTodos[moveSubTodo.Id] = subTodos[moveSubTodo.Id]
+
+	printObj(oldParentTodo)
+	printObj(todos[moveSubTodo.ParentId])
+
+	update("subtodo", moveSubTodo.Id, subTodos[moveSubTodo.Id])
+	replace("todo", oldParentTodo.Id, oldParentTodo)
+	update("todo", moveSubTodo.ParentId, todos[moveSubTodo.ParentId])
 
 	c.IndentedJSON(http.StatusCreated, subTodos[moveSubTodo.Id])
 }

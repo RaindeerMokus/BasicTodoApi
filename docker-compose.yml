@@ -1,0 +1,29 @@
+version: '3.6'
+services:
+  rethinkdb:
+    image: rethinkdb
+    ports:
+      - 28015:28015
+      - 8080:8080
+    command: rethinkdb --bind all -d /data
+  todo-app:
+    build: /todo-app
+    container_name: todo-app
+    environment: 
+      - DB_SERVER=rethinkdb
+    volumes:
+      - /todo-app:/app
+    depends_on: 
+      - rethinkdb
+    links:
+      - rethinkdb
+    ports:
+      - 80:8080
+  swagger:
+    image: swaggerapi/swagger-ui
+    volumes:
+      - ./swagger.json:/swagger.json
+    environment: 
+      - SWAGGER_JSON=/swagger.json
+    ports:
+      - 3000:8080
