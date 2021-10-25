@@ -4,11 +4,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func initRouter() {
 	router := gin.Default()
+
+	router.Use(cors.Default())
 
 	router.GET("/todos", getTodos)
 	router.POST("/newTodo", postTodo)

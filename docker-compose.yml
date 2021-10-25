@@ -7,12 +7,12 @@ services:
       - 8080:8080
     command: rethinkdb --bind all -d /data
   todo-app:
-    build: /todo-app
+    build: ./todo-app
     container_name: todo-app
     environment: 
       - DB_SERVER=rethinkdb
     volumes:
-      - /todo-app:/app
+      - ./todo-app:/app
     depends_on: 
       - rethinkdb
     links:
